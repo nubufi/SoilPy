@@ -1,6 +1,6 @@
 """SoilPy - A geotechnical engineering library for soil mechanics calculations."""
 
-__version__ = "0.7.10"
+__version__ = "1.0.2"
 __author__ = "Numan Burak Fidan"
 
 # Import main modules

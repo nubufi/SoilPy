@@ -14,7 +14,7 @@ class TestLscBySpt:
         """Create an SPT blow with specified depth and N value."""
         return SPTBlow(
             depth=depth,
-            n=NValue("R") if n == 50 else NValue.from_i32(n),
+            n=NValue(value="R") if n == 50 else NValue.from_i32(n),
         )
 
     def test_case_1(self):

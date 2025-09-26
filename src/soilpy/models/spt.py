@@ -4,20 +4,29 @@ import math
 from enum import Enum
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from ..enums import SelectionMethod
 from ..validation import ValidationError, validate_field
 
 
-class NValue:
+class NValue(BaseModel):
     """Represents an N-value that can be either a numeric value or refusal."""
 
-    def __init__(self, value: Union[int, str]):
-        if isinstance(value, str) and value.upper() == "R":
-            self._value = "Refusal"
-        elif isinstance(value, int):
-            self._value = value
+    value: Union[int, str] = Field(
+        ..., description="N-value as integer or 'R' for refusal"
+    )
+
+    @field_validator("value")
+    @classmethod
+    def validate_value(cls, v):
+        """Validate that value is either an int or 'R'."""
+        if isinstance(v, str) and v.upper() == "R":
+            return "R"
+        elif isinstance(v, str) and v == "Refusal":
+            return "R"
+        elif isinstance(v, int):
+            return v
         else:
             raise ValueError("Invalid N-value")
 
@@ -26,58 +35,58 @@ class NValue:
         """Converts from int to NValue."""
         if n <= 0:
             raise ValueError("n value must be greater than 0")
-        return cls(n)
+        return cls(value=n)
 
     def to_i32(self) -> int:
         """Converts to int (50 for refusals)."""
-        if self._value == "Refusal":
+        if self.value == "R":
             return 50
-        return self._value
+        return self.value
 
     def to_option(self) -> Optional[int]:
         """Converts to Optional[int], treating Refusal as 50."""
-        if self._value == "Refusal":
+        if self.value == "R":
             return 50
-        return self._value
+        return self.value
 
     def mul_by_f64(self, factor: float) -> "NValue":
         """Multiply by a factor."""
-        if self._value == "Refusal":
-            return NValue("R")
-        return NValue(int(math.ceil(self._value * factor)))
+        if self.value == "R":
+            return NValue(value="R")
+        return NValue(value=int(math.ceil(self.value * factor)))
 
     def sum_with(self, other: "NValue") -> "NValue":
         """Sum up with another NValue."""
-        if self._value == "Refusal" or other._value == "Refusal":
-            return NValue("R")
-        return NValue(self._value + other._value)
+        if self.value == "R" or other.value == "R":
+            return NValue(value="R")
+        return NValue(value=self.value + other.value)
 
     def add_f64(self, other: float) -> "NValue":
         """Sum up with a float."""
-        if self._value == "Refusal":
-            return NValue("R")
-        return NValue(int(math.ceil(self._value + other)))
+        if self.value == "R":
+            return NValue(value="R")
+        return NValue(value=int(math.ceil(self.value + other)))
 
     def __str__(self) -> str:
-        if self._value == "Refusal":
+        if self.value == "R":
             return "R"
-        return str(self._value)
+        return str(self.value)
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, NValue):
             return False
-        return self._value == other._value
+        return self.value == other.value
 
     def __lt__(self, other) -> bool:
         if not isinstance(other, NValue):
             return NotImplemented
-        if self._value == "Refusal" and other._value == "Refusal":
+        if self.value == "R" and other.value == "R":
             return False
-        if self._value == "Refusal":
+        if self.value == "R":
             return False
-        if other._value == "Refusal":
+        if other.value == "R":
             return True
-        return self._value < other._value
+        return self.value < other.value
 
     def __le__(self, other) -> bool:
         return self < other or self == other
@@ -91,8 +100,6 @@ class NValue:
 
 class SPTBlow(BaseModel):
     """Represents a single SPT blow."""
-
-    model_config = {"arbitrary_types_allowed": True}
 
     thickness: Optional[float] = None
     depth: Optional[float] = None
