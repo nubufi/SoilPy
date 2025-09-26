@@ -1,27 +1,24 @@
 """Swelling potential calculations for SoilPy."""
 
-from dataclasses import dataclass
 from typing import List
+
+from pydantic import BaseModel
 
 from soilpy.models import Foundation, SoilProfile
 from soilpy.validation import ValidationError, validate_field
 
 
-@dataclass
-class SwellingPotentialData:
+class SwellingPotentialData(BaseModel):
     """Represents the swelling potential data for a soil layer."""
 
     layer_center: float  # The center depth of the layer in meters
     effective_stress: float  # The effective stress at the center of the layer in ton/m2
     delta_stress: float  # The change in stress due to the foundation load in ton/m2
     swelling_pressure: float  # The calculated swelling pressure for the layer in ton/m2
-    is_safe: (
-        bool  # Indicates whether the swelling pressure is safe compared to the effective stress
-    )
+    is_safe: bool  # Indicates whether the swelling pressure is safe compared to the effective stress
 
 
-@dataclass
-class SwellingPotentialResult:
+class SwellingPotentialResult(BaseModel):
     """Represents the result of the swelling potential calculation."""
 
     data: List[SwellingPotentialData]  # Swelling potential data for each layer

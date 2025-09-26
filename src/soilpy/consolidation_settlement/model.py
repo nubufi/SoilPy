@@ -1,11 +1,11 @@
 """Models for consolidation settlement calculations."""
 
-from dataclasses import dataclass
 from typing import List
 
+from pydantic import BaseModel
 
-@dataclass
-class SettlementResult:
+
+class SettlementResult(BaseModel):
     """Represents the consolidation settlement calculation result."""
 
     settlement_per_layer: List[float]  # Settlement for each layer in cm

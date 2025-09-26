@@ -1,14 +1,14 @@
 """Local soil classification by SPT (Standard Penetration Test) for SoilPy."""
 
-from dataclasses import dataclass
 from typing import List
+
+from pydantic import BaseModel
 
 from soilpy.models import SPT, SPTExp
 from soilpy.validation import ValidationError
 
 
-@dataclass
-class NLayerData:
+class NLayerData(BaseModel):
     """Data for a single layer in SPT-based soil classification."""
 
     thickness: float  # Layer thickness (h) in meters
@@ -16,8 +16,7 @@ class NLayerData:
     h_over_n: float  # H/N ratio
 
 
-@dataclass
-class SptSoilClassificationResult:
+class SptSoilClassificationResult(BaseModel):
     """Result of SPT-based soil classification."""
 
     layers: List[NLayerData]  # Per-layer N information

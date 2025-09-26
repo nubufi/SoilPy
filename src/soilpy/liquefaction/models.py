@@ -1,16 +1,16 @@
 """Models for liquefaction analysis in SoilPy."""
 
-from dataclasses import dataclass, field
 from typing import List, Optional
+
+from pydantic import BaseModel, Field
 
 from soilpy.models import SoilLayer, SPTExp
 
 
-@dataclass
-class CommonLiquefactionLayerResult:
+class CommonLiquefactionLayerResult(BaseModel):
     """Result of liquefaction analysis for a single layer."""
 
-    soil_layer: SoilLayer = field(default_factory=SoilLayer)
+    soil_layer: SoilLayer = Field(default_factory=SoilLayer)
     depth: float = 0.0
     normal_stress: float = 0.0
     effective_stress: float = 0.0
@@ -23,8 +23,7 @@ class CommonLiquefactionLayerResult:
     rd: float = 0.0
 
 
-@dataclass
-class VSLiquefactionLayerResult:
+class VSLiquefactionLayerResult(BaseModel):
     """Result of liquefaction analysis for a single layer."""
 
     vs: float
@@ -33,8 +32,7 @@ class VSLiquefactionLayerResult:
     cn: Optional[float] = None
 
 
-@dataclass
-class VSLiquefactionResult:
+class VSLiquefactionResult(BaseModel):
     """Result of liquefaction analysis for entire soil profile."""
 
     layers: List[CommonLiquefactionLayerResult]  # All layer results
@@ -43,8 +41,7 @@ class VSLiquefactionResult:
     msf: float  # Magnitude Scaling Factor
 
 
-@dataclass
-class SptLiquefactionResult:
+class SptLiquefactionResult(BaseModel):
     """Result of liquefaction analysis for entire soil profile."""
 
     layers: List[CommonLiquefactionLayerResult]  # All layer results

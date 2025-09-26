@@ -1,10 +1,9 @@
 """Bearing capacity model definitions for SoilPy."""
 
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class BearingCapacityFactors:
+class BearingCapacityFactors(BaseModel):
     """Bearing capacity factors according to Terzaghi, Meyerhof, Hansen, etc."""
 
     nc: float
@@ -12,8 +11,7 @@ class BearingCapacityFactors:
     ng: float  # sometimes denoted as Nγ
 
 
-@dataclass
-class ShapeFactors:
+class ShapeFactors(BaseModel):
     """Shape modification factors used in bearing capacity equations."""
 
     sc: float
@@ -21,8 +19,7 @@ class ShapeFactors:
     sg: float
 
 
-@dataclass
-class InclinationFactors:
+class InclinationFactors(BaseModel):
     """Inclination modification factors for inclined load conditions."""
 
     ic: float
@@ -30,8 +27,7 @@ class InclinationFactors:
     ig: float
 
 
-@dataclass
-class BaseFactors:
+class BaseFactors(BaseModel):
     """Base inclination factors depending on foundation base angle."""
 
     bc: float
@@ -39,8 +35,7 @@ class BaseFactors:
     bg: float
 
 
-@dataclass
-class GroundFactors:
+class GroundFactors(BaseModel):
     """Ground slope modification factors affecting bearing capacity."""
 
     gc: float
@@ -48,8 +43,7 @@ class GroundFactors:
     gg: float
 
 
-@dataclass
-class DepthFactors:
+class DepthFactors(BaseModel):
     """Depth modification factors for accounting foundation embedment."""
 
     dc: float
@@ -57,8 +51,7 @@ class DepthFactors:
     dg: float
 
 
-@dataclass
-class SoilParams:
+class SoilParams(BaseModel):
     """Soil parameters used in bearing capacity calculations."""
 
     friction_angle: float
@@ -66,8 +59,7 @@ class SoilParams:
     unit_weight: float
 
 
-@dataclass
-class BearingCapacityResult:
+class BearingCapacityResult(BaseModel):
     """Result of bearing capacity calculation."""
 
     bearing_capacity_factors: BearingCapacityFactors

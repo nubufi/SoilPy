@@ -1,13 +1,13 @@
 """Foundation model for SoilPy."""
 
-from dataclasses import dataclass
 from typing import Optional
+
+from pydantic import BaseModel, Field
 
 from ..validation import ValidationError, validate_field
 
 
-@dataclass
-class Foundation:
+class Foundation(BaseModel):
     """Represents a foundation with geometry and load effects.
 
     Attributes:

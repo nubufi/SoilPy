@@ -1,15 +1,17 @@
 """Validation module for SoilPy."""
 
-from dataclasses import dataclass
 from typing import Optional, Union
 
+from pydantic import BaseModel
 
-@dataclass
+
 class ValidationError(Exception):
     """Validation error with structured error information."""
 
-    code: str
-    message: str
+    def __init__(self, code: str, message: str):
+        self.code = code
+        self.message = message
+        super().__init__(self.message)
 
     def __str__(self) -> str:
         return f"[{self.code}] {self.message}"

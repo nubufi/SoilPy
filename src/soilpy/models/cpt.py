@@ -1,14 +1,14 @@
 """CPT (Cone Penetration Test) model for SoilPy."""
 
-from dataclasses import dataclass, field
 from typing import List, Optional
+
+from pydantic import BaseModel, Field
 
 from ..enums import SelectionMethod
 from ..validation import ValidationError, validate_field
 
 
-@dataclass
-class CPTLayer:
+class CPTLayer(BaseModel):
     """Represents a single CPT (Cone Penetration Test) data point.
 
     Each CPTLayer instance holds a depth value (in meters) and a cone_resistance value (in MPa).
@@ -21,7 +21,9 @@ class CPTLayer:
     friction_ratio: Optional[float] = None  # Friction ratio (Rf) in percentage
 
     @classmethod
-    def new(cls, depth: float, qc: float, fs: float, u2: Optional[float] = None) -> "CPTLayer":
+    def new(
+        cls, depth: float, qc: float, fs: float, u2: Optional[float] = None
+    ) -> "CPTLayer":
         """Creates a new CPTLayer instance.
 
         Args:
@@ -58,7 +60,9 @@ class CPTLayer:
         """
         if self.cone_resistance is not None and self.cone_resistance != 0.0:
             if self.sleeve_friction is not None:
-                self.friction_ratio = (self.sleeve_friction / self.cone_resistance) * 100.0
+                self.friction_ratio = (
+                    self.sleeve_friction / self.cone_resistance
+                ) * 100.0
 
     def validate(self, fields: List[str]) -> None:
         """Validates specific fields of the CPTLayer using field names.
@@ -87,9 +91,13 @@ class CPTLayer:
                     error_code_prefix="cpt",
                 )
             elif field == "pore_pressure":
-                validate_field("pore_pressure", self.pore_pressure, 0.0, error_code_prefix="cpt")
+                validate_field(
+                    "pore_pressure", self.pore_pressure, 0.0, error_code_prefix="cpt"
+                )
             elif field == "friction_ratio":
-                validate_field("friction_ratio", self.friction_ratio, 0.0, error_code_prefix="cpt")
+                validate_field(
+                    "friction_ratio", self.friction_ratio, 0.0, error_code_prefix="cpt"
+                )
             else:
                 raise ValidationError(
                     code="cpt.invalid_field",
@@ -97,14 +105,13 @@ class CPTLayer:
                 )
 
 
-@dataclass
-class CPTExp:
+class CPTExp(BaseModel):
     """Represents a collection of CPT data points.
 
     A CPTExp struct contains multiple CPTLayer instances, forming a complete CPT profile.
     """
 
-    layers: List[CPTLayer] = field(default_factory=list)
+    layers: List[CPTLayer] = Field(default_factory=list)
     name: str = ""
 
     @classmethod
@@ -155,20 +162,21 @@ class CPTExp:
             ValidationError: If any field is invalid
         """
         if not self.layers:
-            raise ValidationError(code="cpt.empty_layers", message="No layers provided for CPTExp.")
+            raise ValidationError(
+                code="cpt.empty_layers", message="No layers provided for CPTExp."
+            )
 
         for layer in self.layers:
             layer.validate(fields)
 
 
-@dataclass
-class CPT:
+class CPT(BaseModel):
     """Represents a collection of CPT tests.
 
     A CPT struct contains multiple CPTExp instances, each representing a single CPT profile.
     """
 
-    exps: List[CPTExp] = field(default_factory=list)
+    exps: List[CPTExp] = Field(default_factory=list)
     idealization_method: SelectionMethod = SelectionMethod.AVG
 
     @classmethod
@@ -261,7 +269,9 @@ class CPT:
             ValidationError: If any field is invalid
         """
         if not self.exps:
-            raise ValidationError(code="cpt.empty_exps", message="No experiments found in CPT.")
+            raise ValidationError(
+                code="cpt.empty_exps", message="No experiments found in CPT."
+            )
 
         for exp in self.exps:
             exp.validate(fields)

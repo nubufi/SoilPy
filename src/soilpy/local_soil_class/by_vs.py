@@ -1,14 +1,14 @@
 """Local soil classification by VS (Shear Wave Velocity) for SoilPy."""
 
-from dataclasses import dataclass
 from typing import List
+
+from pydantic import BaseModel
 
 from soilpy.models import Masw, MaswExp
 from soilpy.validation import ValidationError
 
 
-@dataclass
-class VsLayerData:
+class VsLayerData(BaseModel):
     """Data for a single layer in VS-based soil classification."""
 
     thickness: float  # Layer thickness (h) in meters
@@ -16,8 +16,7 @@ class VsLayerData:
     h_over_vs: float  # H/Vs ratio
 
 
-@dataclass
-class VsSoilClassificationResult:
+class VsSoilClassificationResult(BaseModel):
     """Result of VS-based soil classification."""
 
     layers: List[VsLayerData]  # Per-layer Vs information

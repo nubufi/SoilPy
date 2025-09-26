@@ -1,14 +1,14 @@
 """Horizontal sliding calculations for SoilPy."""
 
 import math
-from dataclasses import dataclass
+
+from pydantic import BaseModel
 
 from soilpy.models import Foundation, Loads, SoilProfile
 from soilpy.validation import ValidationError, validate_field
 
 
-@dataclass
-class HorizontalSlidingResult:
+class HorizontalSlidingResult(BaseModel):
     """Result of horizontal sliding calculations."""
 
     rth: float  # Resistance from friction/cohesion

@@ -1,14 +1,14 @@
 """Point Load Test bearing capacity calculations for SoilPy."""
 
-from dataclasses import dataclass
 from typing import Optional
+
+from pydantic import BaseModel
 
 from soilpy.models import Foundation, PointLoadTest
 from soilpy.validation import ValidationError, validate_field
 
 
-@dataclass
-class Output:
+class Output(BaseModel):
     """Represents the bearing capacity result for a given soil and foundation setup."""
 
     is50: float  # Is50 value in MPa

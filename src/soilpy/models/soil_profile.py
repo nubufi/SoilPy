@@ -1,13 +1,13 @@
 """Soil profile model for SoilPy."""
 
-from dataclasses import dataclass, field
 from typing import List, Optional
+
+from pydantic import BaseModel, Field
 
 from ..validation import ValidationError, validate_field
 
 
-@dataclass
-class SoilLayer:
+class SoilLayer(BaseModel):
     """Represents a single soil layer in a geotechnical engineering model.
 
     This class contains essential soil properties used for analysis, such as
@@ -138,9 +138,13 @@ class SoilLayer:
             elif field == "cu":
                 validate_field("cu", self.cu, 0.0, error_code_prefix="soil_profile")
             elif field == "c_prime":
-                validate_field("c_prime", self.c_prime, 0.0, error_code_prefix="soil_profile")
+                validate_field(
+                    "c_prime", self.c_prime, 0.0, error_code_prefix="soil_profile"
+                )
             elif field == "phi_u":
-                validate_field("phi_u", self.phi_u, 0.0, 90.0, error_code_prefix="soil_profile")
+                validate_field(
+                    "phi_u", self.phi_u, 0.0, 90.0, error_code_prefix="soil_profile"
+                )
             elif field == "phi_prime":
                 validate_field(
                     "phi_prime",
@@ -173,7 +177,9 @@ class SoilLayer:
                     error_code_prefix="soil_profile",
                 )
             elif field == "void_ratio":
-                validate_field("void_ratio", self.void_ratio, 0.0, error_code_prefix="soil_profile")
+                validate_field(
+                    "void_ratio", self.void_ratio, 0.0, error_code_prefix="soil_profile"
+                )
             elif field == "compression_index":
                 validate_field(
                     "compression_index",
@@ -211,17 +217,16 @@ class SoilLayer:
                 )
 
 
-@dataclass
-class SoilProfile:
+class SoilProfile(BaseModel):
     """Represents a soil profile consisting of multiple soil layers.
 
     This structure stores soil layers and calculates normal and effective stresses.
     """
 
-    layers: List[SoilLayer] = field(default_factory=list)
+    layers: List[SoilLayer] = Field(default_factory=list)
     ground_water_level: Optional[float] = None  # meters
 
-    def __post_init__(self):
+    def model_post_init(self, __context) -> None:
         """Initialize layer depths after object creation."""
         if self.layers:
             self.calc_layer_depths()
@@ -309,7 +314,9 @@ class SoilProfile:
             if layer.thickness is None:
                 raise ValueError("Layer thickness must be set")
 
-            layer_thickness = depth - previous_depth if i == layer_index else layer.thickness
+            layer_thickness = (
+                depth - previous_depth if i == layer_index else layer.thickness
+            )
 
             dry_unit_weight = layer.dry_unit_weight or 0.0
             saturated_unit_weight = layer.saturated_unit_weight or 0.0
@@ -330,7 +337,8 @@ class SoilProfile:
                 dry_thickness = gwt - previous_depth
                 submerged_thickness = layer_thickness - dry_thickness
                 total_stress += (
-                    dry_unit_weight * dry_thickness + saturated_unit_weight * submerged_thickness
+                    dry_unit_weight * dry_thickness
+                    + saturated_unit_weight * submerged_thickness
                 )
 
             previous_depth += layer_thickness
@@ -352,7 +360,9 @@ class SoilProfile:
         normal_stress = self.calc_normal_stress(depth)
 
         if self.ground_water_level >= depth:
-            return normal_stress  # Effective stress equals total stress above water table
+            return (
+                normal_stress  # Effective stress equals total stress above water table
+            )
         else:
             pore_pressure = (depth - self.ground_water_level) * 0.981  # t/m³ for water
             return normal_stress - pore_pressure

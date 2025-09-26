@@ -1,14 +1,14 @@
 """Tezcan & Ozdemir bearing capacity calculations for SoilPy."""
 
-from dataclasses import dataclass
 from typing import Optional
+
+from pydantic import BaseModel
 
 from soilpy.models import Foundation, Masw, SoilProfile
 from soilpy.validation import ValidationError
 
 
-@dataclass
-class Output:
+class Output(BaseModel):
     """Represents the bearing capacity result for a given soil and foundation setup."""
 
     vs: float  # Shear wave velocity (Vs) in m/s

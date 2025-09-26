@@ -1,14 +1,14 @@
 """Local soil classification by Cu (undrained shear strength) for SoilPy."""
 
-from dataclasses import dataclass
 from typing import List
+
+from pydantic import BaseModel
 
 from soilpy.models import SoilProfile
 from soilpy.validation import ValidationError
 
 
-@dataclass
-class CuLayerData:
+class CuLayerData(BaseModel):
     """Data for a single layer in Cu-based soil classification."""
 
     thickness: float  # Layer thickness (h) in meters
@@ -16,8 +16,7 @@ class CuLayerData:
     h_over_cu: float  # H/Cu ratio
 
 
-@dataclass
-class CuSoilClassificationResult:
+class CuSoilClassificationResult(BaseModel):
     """Result of Cu-based soil classification."""
 
     layers: List[CuLayerData]  # Per-layer Cu information

@@ -1,14 +1,14 @@
 """Point Load Test model for SoilPy."""
 
-from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
+
+from pydantic import BaseModel, Field
 
 from ..enums import SelectionMethod
 from ..validation import ValidationError, validate_field
 
 
-@dataclass
-class PointLoadSample:
+class PointLoadSample(BaseModel):
     """Represents an individual Point Load Test sample for determining rock strength.
 
     Attributes:
@@ -56,21 +56,35 @@ class PointLoadSample:
         """
         for field in fields:
             if field == "depth":
-                validate_field("depth", self.depth, 0.0, error_code_prefix="point_load_test")
+                validate_field(
+                    "depth", self.depth, 0.0, error_code_prefix="point_load_test"
+                )
             elif field == "sample_no":
-                validate_field("sample_no", self.sample_no, 0, error_code_prefix="point_load_test")
+                validate_field(
+                    "sample_no", self.sample_no, 0, error_code_prefix="point_load_test"
+                )
             elif field == "p":
                 validate_field("p", self.p, 0.0001, error_code_prefix="point_load_test")
             elif field == "is":
-                validate_field("is", self.is_value, 0.00001, error_code_prefix="point_load_test")
+                validate_field(
+                    "is", self.is_value, 0.00001, error_code_prefix="point_load_test"
+                )
             elif field == "f":
-                validate_field("f", self.f, 0.00001, error_code_prefix="point_load_test")
+                validate_field(
+                    "f", self.f, 0.00001, error_code_prefix="point_load_test"
+                )
             elif field == "is50":
-                validate_field("is50", self.is50, 0.00001, error_code_prefix="point_load_test")
+                validate_field(
+                    "is50", self.is50, 0.00001, error_code_prefix="point_load_test"
+                )
             elif field == "l":
-                validate_field("l", self.l, 0.00001, error_code_prefix="point_load_test")
+                validate_field(
+                    "l", self.l, 0.00001, error_code_prefix="point_load_test"
+                )
             elif field == "d":
-                validate_field("d", self.d, 0.00001, error_code_prefix="point_load_test")
+                validate_field(
+                    "d", self.d, 0.00001, error_code_prefix="point_load_test"
+                )
             else:
                 raise ValidationError(
                     code="point_load_test.invalid_field",
@@ -78,8 +92,7 @@ class PointLoadSample:
                 )
 
 
-@dataclass
-class PointLoadExp:
+class PointLoadExp(BaseModel):
     """Represents a single borehole containing multiple Point Load Test samples.
 
     Attributes:
@@ -88,7 +101,7 @@ class PointLoadExp:
     """
 
     borehole_id: str = ""
-    samples: List[PointLoadSample] = field(default_factory=list)
+    samples: List[PointLoadSample] = Field(default_factory=list)
 
     @classmethod
     def new(cls, borehole_id: str, samples: List[PointLoadSample]) -> "PointLoadExp":
@@ -147,8 +160,7 @@ class PointLoadExp:
             sample.validate(fields)
 
 
-@dataclass
-class PointLoadTest:
+class PointLoadTest(BaseModel):
     """Represents the entire Point Load Test comprising multiple boreholes.
 
     Attributes:
@@ -156,11 +168,13 @@ class PointLoadTest:
         idealization_method: Method used for idealizing the test results
     """
 
-    exps: List[PointLoadExp] = field(default_factory=list)
+    exps: List[PointLoadExp] = Field(default_factory=list)
     idealization_method: SelectionMethod = SelectionMethod.AVG
 
     @classmethod
-    def new(cls, exps: List[PointLoadExp], idealization_method: SelectionMethod) -> "PointLoadTest":
+    def new(
+        cls, exps: List[PointLoadExp], idealization_method: SelectionMethod
+    ) -> "PointLoadTest":
         """Creates a new PointLoadTest instance.
 
         Args:
@@ -198,7 +212,11 @@ class PointLoadTest:
         # Collect all unique depths and corresponding (is50, d) values
         for exp in self.exps:
             for sample in exp.samples:
-                if sample.depth is not None and sample.is50 is not None and sample.d is not None:
+                if (
+                    sample.depth is not None
+                    and sample.is50 is not None
+                    and sample.d is not None
+                ):
                     depth = sample.depth
                     if depth not in depth_map:
                         depth_map[depth] = []
@@ -219,7 +237,9 @@ class PointLoadTest:
                 selected_is50 = sum_is50 / count
                 selected_d = sum_d / count
 
-            idealized_samples.append(PointLoadSample.new(depth, selected_is50, selected_d))
+            idealized_samples.append(
+                PointLoadSample.new(depth, selected_is50, selected_d)
+            )
 
         return PointLoadExp.new(name, idealized_samples)
 

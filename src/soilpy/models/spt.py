@@ -1,9 +1,10 @@
 """SPT (Standard Penetration Test) model for SoilPy."""
 
 import math
-from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Optional, Union
+
+from pydantic import BaseModel, Field
 
 from ..enums import SelectionMethod
 from ..validation import ValidationError, validate_field
@@ -88,9 +89,10 @@ class NValue:
         return not self < other
 
 
-@dataclass
-class SPTBlow:
+class SPTBlow(BaseModel):
     """Represents a single SPT blow."""
+
+    model_config = {"arbitrary_types_allowed": True}
 
     thickness: Optional[float] = None
     depth: Optional[float] = None
@@ -130,7 +132,9 @@ class SPTBlow:
             if field == "depth":
                 validate_field("depth", self.depth, 0.0, error_code_prefix="spt")
             elif field == "thickness":
-                validate_field("thickness", self.thickness, 0.0, error_code_prefix="spt")
+                validate_field(
+                    "thickness", self.thickness, 0.0, error_code_prefix="spt"
+                )
             elif field == "n":
                 if self.n is None:
                     raise ValidationError(
@@ -217,17 +221,18 @@ class SPTBlow:
             fine_content = layer.fine_content or 0.0
             self.set_alpha_beta(fine_content)
 
-        if all(x is not None for x in [self.n60, self.cn, self.cr, self.alpha, self.beta]):
+        if all(
+            x is not None for x in [self.n60, self.cn, self.cr, self.alpha, self.beta]
+        ):
             n1_60 = self.n60.mul_by_f64(self.cn * self.cr * cs * cb)
             self.n1_60 = n1_60
             self.n1_60f = n1_60.mul_by_f64(self.beta).add_f64(self.alpha)
 
 
-@dataclass
-class SPTExp:
+class SPTExp(BaseModel):
     """Represents a single SPT experiment."""
 
-    blows: List[SPTBlow] = field(default_factory=list)
+    blows: List[SPTBlow] = Field(default_factory=list)
     name: str = ""
 
     @classmethod
@@ -291,17 +296,18 @@ class SPTExp:
             ValidationError: If any field is invalid
         """
         if not self.blows:
-            raise ValidationError(code="spt.empty_blows", message="No blows provided for SPTExp.")
+            raise ValidationError(
+                code="spt.empty_blows", message="No blows provided for SPTExp."
+            )
 
         for blow in self.blows:
             blow.validate(fields)
 
 
-@dataclass
-class SPT:
+class SPT(BaseModel):
     """Represents a collection of SPT tests."""
 
-    exps: List[SPTExp] = field(default_factory=list)
+    exps: List[SPTExp] = Field(default_factory=list)
     energy_correction_factor: Optional[float] = None
     diameter_correction_factor: Optional[float] = None
     sampler_correction_factor: Optional[float] = None
@@ -408,7 +414,9 @@ class SPT:
             ValidationError: If any field is invalid
         """
         if not self.exps:
-            raise ValidationError(code="spt.empty_exps", message="No experiments provided for SPT.")
+            raise ValidationError(
+                code="spt.empty_exps", message="No experiments provided for SPT."
+            )
 
         for exp in self.exps:
             exp.validate(fields)

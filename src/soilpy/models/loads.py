@@ -1,14 +1,14 @@
 """Loads model for SoilPy."""
 
-from dataclasses import dataclass
 from typing import Optional
+
+from pydantic import BaseModel, Field
 
 from ..enums import LoadCase, SelectionMethod
 from ..validation import ValidationError, validate_field
 
 
-@dataclass
-class Stress:
+class Stress(BaseModel):
     """Stress values in ton/m^2."""
 
     min: Optional[float] = None
@@ -22,8 +22,7 @@ class Stress:
         validate_field("max", self.max, error_code_prefix="loads")
 
 
-@dataclass
-class Loads:
+class Loads(BaseModel):
     """Loading conditions for foundation design."""
 
     service_load: Optional[Stress] = None
@@ -35,7 +34,9 @@ class Loads:
     moment_y: Optional[float] = None
     vertical_load: Optional[float] = None
 
-    def get_vertical_stress(self, load_case: LoadCase, load_severity: SelectionMethod) -> float:
+    def get_vertical_stress(
+        self, load_case: LoadCase, load_severity: SelectionMethod
+    ) -> float:
         """Get vertical stress value in ton/m^2 for specified load_case and load_severity.
 
         Args:
@@ -119,11 +120,17 @@ class Loads:
                     error_code_prefix="loads",
                 )
             elif field == "moment_x":
-                validate_field("moment_x", self.moment_x, 0.0, error_code_prefix="loads")
+                validate_field(
+                    "moment_x", self.moment_x, 0.0, error_code_prefix="loads"
+                )
             elif field == "moment_y":
-                validate_field("moment_y", self.moment_y, 0.0, error_code_prefix="loads")
+                validate_field(
+                    "moment_y", self.moment_y, 0.0, error_code_prefix="loads"
+                )
             elif field == "vertical_load":
-                validate_field("vertical_load", self.vertical_load, 0.0, error_code_prefix="loads")
+                validate_field(
+                    "vertical_load", self.vertical_load, 0.0, error_code_prefix="loads"
+                )
             elif field == "service_load":
                 if self.service_load is None:
                     raise ValidationError(

@@ -1,14 +1,14 @@
 """MASW (Multichannel Analysis of Surface Waves) model for SoilPy."""
 
-from dataclasses import dataclass, field
 from typing import List, Optional
+
+from pydantic import BaseModel, Field
 
 from ..enums import SelectionMethod
 from ..validation import ValidationError, validate_field
 
 
-@dataclass
-class MaswLayer:
+class MaswLayer(BaseModel):
     """Represents an individual MASW (Multichannel Analysis of Surface Waves) experiment layer.
 
     Attributes:
@@ -50,7 +50,9 @@ class MaswLayer:
             if field == "depth":
                 validate_field("depth", self.depth, 0.0, error_code_prefix="masw")
             elif field == "thickness":
-                validate_field("thickness", self.thickness, 0.0001, error_code_prefix="masw")
+                validate_field(
+                    "thickness", self.thickness, 0.0001, error_code_prefix="masw"
+                )
             elif field == "vs":
                 validate_field("vs", self.vs, 0.0, error_code_prefix="masw")
             elif field == "vp":
@@ -62,8 +64,7 @@ class MaswLayer:
                 )
 
 
-@dataclass
-class MaswExp:
+class MaswExp(BaseModel):
     """Represents a MASW (Multichannel Analysis of Surface Waves) experiment.
 
     Attributes:
@@ -71,7 +72,7 @@ class MaswExp:
         name: The name of the experiment
     """
 
-    layers: List[MaswLayer] = field(default_factory=list)
+    layers: List[MaswLayer] = Field(default_factory=list)
     name: str = ""
 
     @classmethod
@@ -109,7 +110,9 @@ class MaswExp:
                 raise ValueError("Layer thickness must be set")
 
             if layer.thickness <= 0.0:
-                raise ValueError("Thickness of MASW experiment must be greater than zero.")
+                raise ValueError(
+                    "Thickness of MASW experiment must be greater than zero."
+                )
 
             layer.depth = bottom + layer.thickness
             bottom += layer.thickness
@@ -149,8 +152,7 @@ class MaswExp:
             layer.validate(fields)
 
 
-@dataclass
-class Masw:
+class Masw(BaseModel):
     """Represents a MASW (Multichannel Analysis of Surface Waves) model.
 
     Attributes:
@@ -158,7 +160,7 @@ class Masw:
         idealization_method: The method used for idealization
     """
 
-    exps: List[MaswExp] = field(default_factory=list)
+    exps: List[MaswExp] = Field(default_factory=list)
     idealization_method: SelectionMethod = SelectionMethod.AVG
 
     @classmethod
